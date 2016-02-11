@@ -1,15 +1,16 @@
 # problem 1 Data Analysis and Cleaning
 # For goldie:
-### adult <- read.table("/Users/maggie/Documents/DataMiningCourse/kevinsmall/hw1/data/adult/combined/adult_combined_missing.csv", header = TRUE, sep = ",")
+# adult <- read.table("/Users/maggie/Documents/DataMiningCourse/kevinsmall/hw1/data/adult/combined/adult_combined_missing.csv", header = TRUE, sep = ",")
 # for silver:
-# 
-adult <- read.table("/Users/mingzhexu/Documents/DataMiningCourse/kevinsmall/hw1/data/adult/combined/adult_combined_missing.csv", header = TRUE, sep = ",")
+# adult <- read.table("/Users/mingzhexu/Documents/DataMiningCourse/kevinsmall/hw1/data/adult/combined/adult_combined_missing.csv", header = TRUE, sep = ",")
 age <- adult$age
 fnlwgt <- adult$fnlwgt
 edu.num <- adult$education.num
 cap.gain <- adult$capital.gain
 cap.loss <- adult$capital.loss
 hours <- adult$hours.per.week
+income <- adult$income
+#####################################
 # (a) Basic Statistical Description
 # i) Compute mean, min, 1st Qu, median, 3rd Qu, Max, mode
 ## sum
@@ -31,7 +32,6 @@ missingfun <- function(col){
     if(is.na(col[i])){
       num = num + 1
     }
-    num = num
   }
   return(num)
 }
@@ -44,11 +44,13 @@ meanfun <- function(col){
 medianfun <- function(col){
   col <- sort(col)
   len = length(col) - missingfun(col)
+  #print(col[1])
+  #print(col[length(col)])
   if(len%%2==1)
   {
     return(col[len%/%2 + 1])
   }
-  return(col[len/2])
+  return((col[len/2] + col[len/2 + 1])/2)
 }
 ## max
 maxfun <- function(col){
@@ -83,87 +85,83 @@ minfun <- function(c){
 ## mode: the number that appear most frequently
 modefun <- function(col){
   return(names(sort(-table(col)))[1])
-if(false)
-{  col = sort(col)
-   most = 0
-   mostnum = col[1]
-   freq = 0
-  num = col[1]
-  for(i in 1 : length(col)){
-    if(!is.na(col[i])){
-      if(col[i] == num){
-        freq = freq + 1
-      }
-      if(col[i] != num){
-        if(freq > most){
-          most <- freq
-          mostnum <- col[i-1]
-          freq <- 1
-          num <- col[i]
-        }
-      }
-      if((i == length(col)) && (freq > most)){
-        return(col[i])
-      } 
-    }
+}
+
+## Q1:
+q1fun <- function (col){
+  col <- sort(col)
+  pos <- (length(col)+1)%/%4
+  rem <- (length(col)+1)%%4
+  if((length(col)+1) %% 4 == 0)
+  {
+    return(col[pos])
   }
-  return(mostnum)
+  return(col[pos]+(rem*(col[pos+1] - col[pos])))
 }
+
+## Q3:
+q3fun <- function (col){
+  col <- sort(col)
+  pos <- 3*((length(col)+1)%/%4)
+  rem <- (3*(length(col)+1))%%4
+  if(3*((length(col)+1)%%4) == 0)
+  {
+    return(col[pos])
+  }
+  return(col[pos] + rem * (col[pos + 1] - col[pos]))
 }
+
+printfun <- function(name, col){
+  min <- minfun(col)
+  max <- maxfun(col)
+  q1 <- q1fun(col)
+  q3 <- q3fun(col)
+  median <- medianfun(col)
+  mean <- meanfun(col)
+  mode <- modefun(col)
+  missing <- missingfun(col)
+  cat("\nFor attribute", name, "\n min: ", min, "\n Q1: ", q1,"\n median: ", median, 
+      "\n Q3: ", q3, "\n Max: ", max, "\n Mean: ", mean, "\n Mode: ", mode, "\n Missing: ", missing)
+}
+
+# ii)
 ## Calculation:
-minfun(age)
-minfun(fnlwgt)
-minfun(edu.num)
-minfun(cap.gain)
-minfun(cap.loss)
-minfun(hours)
-maxfun(age)
-maxfun(fnlwgt)
-maxfun(edu.num)
-maxfun(cap.gain)
-maxfun(cap.loss)
-maxfun(hours)
-meanfun(age)
-meanfun(fnlwgt)
-meanfun(edu.num)
-meanfun(cap.gain)
-meanfun(cap.loss)
-meanfun(hours)
-medianfun(age)
-medianfun(fnlwgt)
-medianfun(edu.num)
-medianfun(cap.gain)
-medianfun(cap.loss)
-medianfun(hours)
-modefun(age)
-modefun(fnlwgt)
-modefun(edu.num)
-modefun(cap.gain)
-modefun(cap.loss)
-modefun(hours)
-missingfun(age)
-missingfun(fnlwgt)
-missingfun(edu.num)
-missingfun(cap.gain)
-missingfun(cap.loss)
-missingfun(hours)
+cat(
+printfun("age", age),
+printfun("fnlwgt", fnlwgt),
+printfun("edu.num", edu.num),
+printfun("cap.gain", cap.gain),
+printfun("cap.loss", cap.loss),
+printfun("hours", hours)
+)
+#####################################
 # (b) Visualizing data
-setwd("/Users/mingzhexu/Documents/DataMiningCourse/kevinsmall/hw1/data/adult/combined/")
+# setwd("/Users/mingzhexu/Documents/DataMiningCourse/kevinsmall/hw1/data/adult/combined/")
+# setwd("/Users/maggie/Documents/DataMiningCourse/kevinsmall/hw1/data/adult/combined/")
+
 # i)
 summary(adult)
-summary(adult$age)
+summary(age)
+
 # ii)
-boxplot(adult$age)
-boxplot(adult$age ~ adult$income)
+boxplot(age)
+boxplot(age ~ income)
+boxplot(edu.num)
+boxplot(edu.num ~ income)
+boxplot(hours)
+boxplot(hours ~ income)
+
 # iii)
-hist(adult$age)
-hist(adult$capital.gain)
-hist(adult$capital.loss)
-summary(adult$capital.gain)
+hist(age)
+hist(cap.gain)
+hist(cap.loss)
+summary(cap.gain)
+# Interpret
+
 # iv)
 wc <- table(adult$workclass)
 barplot(wc)
-wc2 <- table(adult$income, adult$workclass)
+wc2 <- table(income, adult$workclass)
 barplot(wc2, beside=T)
 barplot(prop.table(wc2, 1), beside=T)
 
@@ -172,10 +170,10 @@ adult1k <- adult[sample(1:nrow(adult), 100, replace=FALSE),]
 pairs(~adult1k$age + adult1k$education.num + adult1k$hours.per.week)
 
 # vi)
-plot(adult$age, adult$hours.per.week)
+plot(age, adult$hours.per.week)
 
 # vii)
-chisq.test(table(adult$income, adult$workclass))
+chisq.test(table(income, adult$workclass))
 
-
+##########################################################################
 # Problem 2: Item Similarity
