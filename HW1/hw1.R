@@ -254,3 +254,160 @@ chisq.test(table(income, adult$workclass))
 
 ##########################################################################
 # Problem 2: Item Similarity
+# (a) two instances: x1 and x2
+# i) Euclidean Distance
+# sqrt((-1-5)^2 + (6-2)^2 + 3^2 + (-1)^2)
+# The result is 7.874008
+# ii) Manhattan Distance
+# abs(-1-5) + abs(6-2)+ abs(3) + abs(-1)
+# The result is 14
+# iii) Minkowski Distance
+# h = 0: when h = 0, the distance is (-1-5)^0 + (6-2)^0 + 3^0 + (-1)^0 = 4
+# h = infinity, the result will be the max value of among the 4 dimensions, which is 4
+
+# (b)
+# prove that the Euclidean distance is always less than or equal to Manhattan distance
+# Euclidean distance is the Minkowski distance when h = 2, while Manhattan is when h = 1.
+# to prove it I need to first let the formular to the power of two to get rid of the sqrt in Euclidean:
+# on the Euclidean side: (x1-x2)^2 + (y1-y2)^2 + ...+(d1 - d2)^2
+# on the Manhattan side:(abs(x1-x2) + abs(y1-y2) + ... + abs(d1-d2))^2
+# Then open the power of 2 for Manhattan side, the result will be large than or equal to the value in Euclidean side
+
+
+# (c)
+## i) 
+meanlessfun <- function(col, adult)
+{
+  sumless = 0
+  num = 0
+  less <- adult$income[1]
+  for(i in 1 : length(col))
+  {
+    if(!(is.na(col[i])))
+    {
+      if(adult$income[i] == less)
+      {
+        sumless = sumless + col[i]
+        num = num + 1
+      }
+    }
+  }
+  return(sumless/num)
+}
+meanmorefun <- function(col, adult)
+{
+  summore = 0
+  num = 0
+  less <- adult$income[1]
+  for(i in 1 : length(col))
+  {
+    if(!(is.na(col[i])))
+    {
+      if(adult$income[i] != less)
+      {
+        summore = summore + col[i]
+        num = num + 1
+      }
+    }
+  }
+  return(summore/num)
+}
+
+# replace age missing values:
+meanlessage = meanlessfun(adult$age, adult)
+meanmoreage = meanmorefun(adult$age, adult)
+for(i in 1 : length(adult$age))
+{
+  less = adult$income[1]
+  if(is.na(adult$age[i])){
+    if(adult$income[i] == less){
+      adult$age[i] = meanlessage
+    }else{
+      adult$age[i] = meanmoreage
+    }
+  }
+}
+
+# replace education number missing values:
+meanlessedu = meanlessfun(adult$education.num, adult)
+meanmoreedu = meanmorefun(adult$education.num, adult)
+for(i in 1 : length(adult$education.num))
+{
+  less = adult$income[1]
+  if(is.na(adult$education.num[i])){
+    if(adult$income[i] == less){
+      adult$education.num[i] = meanlessedu
+    }else{
+      adult$education.num[i] = meanmoreedu
+    }
+  }
+}
+
+## replace hours missing values:
+meanlesshours = meanlessfun(adult$hours.per.week, adult)
+meanmorehours = meanmorefun(adult$hours.per.week, adult)
+for(i in 1 : length(adult$hours.per.week))
+{
+  less = adult$income[1]
+  if(is.na(adult$hours.per.week[i])){
+    if(adult$income[i] == less){
+      adult$hours.per.week[i] = meanlesshours
+    }else{
+      adult$hours.per.week[i] = meanmorehours
+    }
+  }
+}
+
+## ii) standardize the values
+standardfun <- function(col){
+  mean = meanfun(col)
+  sd = sd(col)
+  for(i in 1 : length(col))
+  {
+    col[i] = (col[i] - mean) / sd
+  }
+  return(col)
+}
+
+# to standardize the features:
+adult$age = standardfun(adult$age)
+adult$education.num = standardfun(adult$education.num)
+adult$hours.per.week = standardfun(adult$hours.per.week)
+
+## iii) find neighbor
+## the inputs:
+# data: the input data set
+# mean is a list of mean values for age, education_num and hours.per.week
+# meany is a matrix denote the conditional mean value
+# stddev is the standard deviation
+# id is the target id
+# standardize is a boolean true if the data is standarized, false otherwise
+# h is the h in Minkowski's distance
+findneighborfun <- function(data, id, standardize, h)
+{
+  if(!standardize){
+    data$age = standardfun(data$age)
+    data$education.num = standardfun(data$education.num)
+    data$hours.per.week = standardfun(data$hours.per.week)
+  }
+  mindist = 214748364;
+  minid = id
+  
+  targetage <- data[data[, 1] == id,]$age
+  targetedu <- data[data[, 1] == id,]$education.num
+  targethours <- data[data[, 1] == id,]$hours.per.week
+  for(i in 1 : nrow(data))
+  {
+    if(!data$id[i] == id)
+    {
+      disth <- (data$age[i] - targetage)^h+(data$education.num[i] - targetedu)^h+(data$hours.per.week[i] - targethours)^h
+      dist <- disth^(1/h)
+      if(dist < mindist)
+      {
+        mindist <- dist
+        minid <- data$id[i]
+      }
+    }
+  }
+  return(c(minid, mindist))
+}
