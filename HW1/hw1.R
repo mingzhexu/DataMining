@@ -203,6 +203,7 @@ barplot(prop.table(wc2, 1), beside=T, main = "conditional barplot for workclass 
 edu <- table(adult$education)
 barplot(edu, main = "education")
 edu2 <- table(income, adult$education)
+barplot(edu2, beside=T, main = "conditional barplot for education")
 barplot(prop.table(edu2, 1), beside=T, main = "conditional barplot for education - proportional")
 
 ms <- table(adult$marital.status)
@@ -212,6 +213,34 @@ barplot(ms2, beside=T, main = "conditional barplot for marital status")
 barplot(prop.table(ms2, 1), beside=T, main = "conditional barplot for marital status - proportional")
 
 ocp <- table(adult$occupation)
+ocp2 <- table(income, adult$occupation)
+barplot(ocp, main = "occupation")
+barplot(ocp2, beside=T, main = "conditional barplot for occupation")
+barplot(prop.table(ocp2, 1), beside=T, main = "conditional barplot for occupation - proportional")
+
+rls <- table(adult$relationship)
+rls2 <- table(income, adult$relationship)
+barplot(rls, main = "relationship")
+barplot(rls2, beside=T, main = "conditional barplot for relationship")
+barplot(prop.table(rls2, 1), beside = T, main = "conditional barplot for relationship - prop")
+
+rc <- table(adult$race)
+rc2 <- table(income, adult$race)
+barplot(rc, main = "race")
+barplot(rc2, beside=T, main = "conditional barplot for race")
+barplot(prop.table(rc2, 1), beside=T, main="conditional barplot for race - prop")
+
+sex <- table(adult$sex)
+sex2 <- table(income, adult$sex)
+barplot(sex, main= "sex")
+barplot(sex2, beside=T, main = "conditional barplot for sex")
+barplot(prop.table(sex2, 1), beside=T, main = "conditional barplot for sex - prop")
+
+nav <- table(adult$native.country)
+nav2 <- table(income, adult$native.country)
+barplot(nav, main = "native country")
+barplot(nav2, beside=T, main = "conditional barplot for native country")
+barplot(prop.table(nav2, 1), beside=T, main = "conditional barplot for native country - prop")
 
 # v)
 adult1k <- adult[sample(1:nrow(adult), 100, replace=FALSE),]
