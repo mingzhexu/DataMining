@@ -250,8 +250,14 @@ pairs(~adult1k$age + adult1k$education.num + adult1k$hours.per.week)
 plot(age, adult$hours.per.week)
 
 # vii)
-chisq.test(table(income, adult$workclass))
-
+chisq.test(table(adult$income, adult$workclass))
+chisq.test(table(adult$income, adult$education))
+chisq.test(table(adult$income, adult$marital.status))
+chisq.test(table(adult$income, adult$occupation))
+chisq.test(table(adult$income, adult$relationship))
+chisq.test(table(adult$income, adult$race))
+chisq.test(table(adult$income, adult$sex))
+chisq.test(table(adult$income, adult$native.country))
 ##########################################################################
 # Problem 2: Item Similarity
 # (a) two instances: x1 and x2
@@ -314,8 +320,8 @@ meanmorefun <- function(col, adult)
 }
 
 # replace age missing values:
-meanlessage = meanlessfun(adult$age, adult)
-meanmoreage = meanmorefun(adult$age, adult)
+meanlessage = round(meanlessfun(adult$age, adult))
+meanmoreage = round(meanmorefun(adult$age, adult))
 for(i in 1 : length(adult$age))
 {
   less = adult$income[1]
@@ -329,8 +335,8 @@ for(i in 1 : length(adult$age))
 }
 
 # replace education number missing values:
-meanlessedu = meanlessfun(adult$education.num, adult)
-meanmoreedu = meanmorefun(adult$education.num, adult)
+meanlessedu = round(meanlessfun(adult$education.num, adult))
+meanmoreedu = round(meanmorefun(adult$education.num, adult))
 for(i in 1 : length(adult$education.num))
 {
   less = adult$income[1]
@@ -344,8 +350,8 @@ for(i in 1 : length(adult$education.num))
 }
 
 ## replace hours missing values:
-meanlesshours = meanlessfun(adult$hours.per.week, adult)
-meanmorehours = meanmorefun(adult$hours.per.week, adult)
+meanlesshours = round(meanlessfun(adult$hours.per.week, adult))
+meanmorehours = round(meanmorefun(adult$hours.per.week, adult))
 for(i in 1 : length(adult$hours.per.week))
 {
   less = adult$income[1]
@@ -389,6 +395,7 @@ findneighborfun <- function(data, id, standardize, h)
     data$age = standardfun(data$age)
     data$education.num = standardfun(data$education.num)
     data$hours.per.week = standardfun(data$hours.per.week)
+    print("just standardized")
   }
   mindist = 214748364;
   minid = id
@@ -396,11 +403,15 @@ findneighborfun <- function(data, id, standardize, h)
   targetage <- data[data[, 1] == id,]$age
   targetedu <- data[data[, 1] == id,]$education.num
   targethours <- data[data[, 1] == id,]$hours.per.week
+  
   for(i in 1 : nrow(data))
   {
     if(!data$id[i] == id)
     {
-      disth <- (data$age[i] - targetage)^h+(data$education.num[i] - targetedu)^h+(data$hours.per.week[i] - targethours)^h
+      disth <- (abs(data$age[i] - targetage))^h
+      +(abs(data$education.num[i] - targetedu))^h
+      +(abs(data$hours.per.week[i] - targethours))^h
+      
       dist <- disth^(1/h)
       if(dist < mindist)
       {
